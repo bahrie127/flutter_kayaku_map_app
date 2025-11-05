@@ -11,7 +11,8 @@ final class LocationLoaded extends LocationState {
   final double latitude;
   final double longitude;
   final bool isLastKnown;
-  LocationLoaded(this.latitude, this.longitude, this.isLastKnown);
+  final Placemark? placemark;
+  LocationLoaded(this.latitude, this.longitude, this.isLastKnown, this.placemark);
 }
 
 final class LocationError extends LocationState {

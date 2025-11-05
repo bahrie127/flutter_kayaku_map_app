@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:meta/meta.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -46,7 +47,18 @@ class LocationCubit extends Cubit<LocationState> {
           distanceFilter: 100,
         ),
       );
-      emit(LocationLoaded(position.latitude, position.longitude, false));
+      final placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+      emit(
+        LocationLoaded(
+          position.latitude,
+          position.longitude,
+          false,
+          placemarks.isNotEmpty ? placemarks.first : null,
+        ),
+      );
     } catch (e) {
       // If unable to get current position, try to get last known position
       try {
@@ -57,6 +69,7 @@ class LocationCubit extends Cubit<LocationState> {
               lastKnownPosition.latitude,
               lastKnownPosition.longitude,
               true,
+              null,
             ),
           );
         } else {
@@ -94,5 +107,38 @@ class LocationCubit extends Cubit<LocationState> {
 
   Future<void> refreshLocation() async {
     await ensurePermissionAndGetCurrent();
+  }
+
+  Future<void> getMyPlacemark() async {
+    // 1) Cek & minta izin
+    LocationPermission perm = await Geolocator.checkPermission();
+    if (perm == LocationPermission.denied) {
+      perm = await Geolocator.requestPermission();
+    }
+    if (perm == LocationPermission.deniedForever ||
+        perm == LocationPermission.denied) {
+      throw Exception('Izin lokasi ditolak.');
+    }
+
+    // 2) Ambil posisi (kamu bisa atur desiredAccuracy)
+    final pos = await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+    );
+
+    // 3) Reverse geocoding → ambil city/country/kode pos
+    final placemarks = await placemarkFromCoordinates(
+      pos.latitude,
+      pos.longitude,
+    );
+    emit(
+      state is LocationLoaded
+          ? LocationLoaded(
+              (state as LocationLoaded).latitude,
+              (state as LocationLoaded).longitude,
+              (state as LocationLoaded).isLastKnown,
+              placemarks.isNotEmpty ? placemarks.first : null,
+            )
+          : LocationError('State is not LocationLoaded'),
+    );
   }
 }

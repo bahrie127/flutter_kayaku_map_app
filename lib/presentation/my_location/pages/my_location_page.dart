@@ -137,6 +137,20 @@ class _MyLocationPageState extends State<MyLocationPage> {
                   ),
                 ),
               ),
+            if (state is LocationLoaded && state.placemark != null)
+              Positioned(
+                top: 16,
+                left: 16,
+                right: 16,
+                child: Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Text(
+                      'Alamat: ${state.placemark!.street}, ${state.placemark!.subLocality}, ${state.placemark!.locality}, ${state.placemark!.subAdministrativeArea}, ${state.placemark!.administrativeArea}, ${state.placemark!.country}, ${state.placemark!.postalCode}',
+                    ),
+                  ),
+                ),
+              ),
           ],
         );
       },

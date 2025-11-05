@@ -17,17 +17,17 @@ class _SplashPageState extends State<SplashPage> {
   void initState() {
     super.initState();
     _initPackageInfo();
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
-    });
+    // Future.delayed(const Duration(seconds: 3), () {
+    //   Navigator.push(
+    //     context,
+    //     MaterialPageRoute(builder: (context) => const LoginPage()),
+    //   );
+    // });
   }
 
   Future<void> _initPackageInfo() async {
     packageInfo = await PackageInfo.fromPlatform();
-    setState(() {});
+    // setState(() {});
   }
 
   String get appName => packageInfo?.appName ?? '';
